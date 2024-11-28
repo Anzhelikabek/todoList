@@ -46,6 +46,8 @@ export class MainComponent {
   selectedProducts: Todo[] = [];
 
   // Данные таблицы
+  selectedStatus: boolean | null = null; // Для фильтрации задач
+
   submitted: boolean = false;
   cols: any[] = [];
 
@@ -53,7 +55,6 @@ export class MainComponent {
     { label: 'Выполнено', value: true },
     { label: 'Не выполнено', value: false }
   ];
-
 
   constructor(private productService: TodoService, private messageService: MessageService) {
   }
@@ -63,11 +64,9 @@ export class MainComponent {
 
     // Определение колонок
     this.cols = [
-      {field: 'name', header: 'Name'},
-      {field: 'price', header: 'Price'},
-      {field: 'category', header: 'Category'},
-      {field: 'rating', header: 'Rating'},
-      {field: 'inventoryStatus', header: 'Status'},
+      { field: 'name', header: 'Name' },
+      { field: 'description', header: 'Description' },
+      { field: 'status', header: 'Status' }
     ];
 
   }
@@ -117,8 +116,8 @@ export class MainComponent {
       summary: 'Successful',
       detail:
         this.selectedProducts.length === 1
-          ? `${this.selectedProducts[0].name} deleted`
-          : 'Selected products deleted',
+          ? `${this.selectedProducts[0].name} удалено`
+          : 'Выбранные задачи удалены',
       life: 3000,
     });
   }
@@ -135,23 +134,12 @@ export class MainComponent {
     this.product = {...product};
   }
 
-  // Подтверждение удаления выбранных продуктов
-  // confirmDeleteSelected() {
-  //   this.deleteProductsDialog = false;
-  //   this.selectedProducts.forEach((selected) => {
-  //     this.productService.deleteProduct(selected.id!); // Удаление из localStorage
-  //   });
-  //   this.loadProducts(); // Обновить таблицу
-  //   this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
-  //   this.selectedProducts = [];
-  // }
-
   // Подтверждение удаления одного продукта
   confirmDelete() {
     this.deleteProductDialog = false;
     this.productService.deleteProduct(this.product.id!); // Удаление из localStorage
     this.loadProducts(); // Обновить таблицу
-    this.messageService.add({severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000});
+    this.messageService.add({severity: 'success', summary: 'Успешно', detail: 'Задача удалена', life: 3000});
     this.product = {};
   }
 
