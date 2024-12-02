@@ -46,20 +46,6 @@
           ></app-shared-table>
         </div>
 
-        <p-dialog
-          header="Подтвердите выход"
-          [(visible)]="displayModal"
-          [closable]="false"
-          [modal]="true"
-          [style]="{ width: '400px' }">
-          <p>Вы уверены, что хотите выйти из учетной записи <b>{{ userEmail }}</b>?</p>
-          <div class="p-d-flex p-jc-end p-mt-3">
-            <button pButton label="Отмена" class="p-button-text" (click)="cancelLogout()"></button>
-            <button pButton label="OK" class="p-button-primary" (click)="confirmLogout()"></button>
-          </div>
-        </p-dialog>
-
-
         <!-- Модальное окно для создания/редактирования -->
         <p-dialog [(visible)]="productDialog" [style]="{width: '450px'}" header="Подробности задачи" [modal]="true">
           <ng-template class="creat-edit-modal" pTemplate="content">
