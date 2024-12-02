@@ -13,6 +13,9 @@ import {InputTextModule} from 'primeng/inputtext';
 import {NgClass, NgIf} from '@angular/common';
 import {DropdownModule} from 'primeng/dropdown';
 import {InputTextareaModule} from 'primeng/inputtextarea';
+import {AuthService} from '../../services/auth.service';
+import {Router} from '@angular/router';
+import {SharedTableComponent} from '../../shared/shared-table/shared-table.component';
 
 @Component({
   selector: 'app-main',
@@ -30,6 +33,7 @@ import {InputTextareaModule} from 'primeng/inputtextarea';
     DropdownModule,
     NgIf,
     InputTextareaModule,
+    SharedTableComponent,
   ],
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
@@ -43,32 +47,41 @@ export class MainComponent {
   // Продукты и их состояние
   products: Todo[] = [];
   product: Todo = {};
-  selectedProducts: Todo[] = [];
+  selectedProducts: any[] = [];
+  userEmail: string | null = ''
+  displayModal: boolean = false; // Управление отображением модального окна
 
   // Данные таблицы
   selectedStatus: boolean | null = null; // Для фильтрации задач
 
   submitted: boolean = false;
   cols: any[] = [];
+  isAdmin: boolean = false;
+
 
   statusOptions = [
     { label: 'Выполнено', value: true },
     { label: 'Не выполнено', value: false }
   ];
 
-  constructor(private productService: TodoService, private messageService: MessageService) {
+  constructor(private productService: TodoService, private messageService: MessageService,  private authService: AuthService, private router: Router) {
   }
 
   ngOnInit() {
+    const userEmail = localStorage.getItem('userEmail'); // Получаем email пользователя
+    this.isAdmin = this.authService.isAdmin(userEmail || '');
+    if (!this.isAdmin) {
+      console.log('CRUD недоступен для этого пользователя');
+    }
+
     this.loadProducts();
 
     // Определение колонок
     this.cols = [
-      { field: 'name', header: 'Name' },
-      { field: 'description', header: 'Description' },
-      { field: 'status', header: 'Status' }
+      { field: 'name', header: 'Заголовок' },
+      { field: 'description', header: 'Описание' },
+      { field: 'status', header: 'Статус' }
     ];
-
   }
 
   // Загрузка продуктов из localStorage
@@ -179,6 +192,35 @@ export class MainComponent {
       this.productDialog = false; // Закрыть модалку
       this.product = {}; // Очистить форму
     }
+  }
+  onLogout() {
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      console.log(currentUser)
+      this.userEmail = currentUser.email; // Установите email для отображения в модалке
+      this.displayModal = true; // Открыть модальное окно
+    } else {
+      this.performLogout(); // Выполните выход без подтверждения
+    }
+  }
+
+  performLogout() {
+    this.authService.logout()
+      .then(() => {
+        this.router.navigate(['/login']).then(() => {
+          window.location.reload();
+        });
+      })
+      .catch(err => alert('Error signing out: ' + err.message));
+  }
+
+  confirmLogout() {
+    this.displayModal = false; // Закрыть модальное окно
+    this.performLogout(); // Выполнить выход
+  }
+
+  cancelLogout() {
+    this.displayModal = false; // Просто закрыть модальное окно
   }
 
   // Генерация уникального ID
